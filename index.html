@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="bn">
 <head>
@@ -305,6 +304,54 @@
             transform: scale(1.1);
         }
 
+        /* Loading Spinner */
+        .loading-spinner {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        .playlist-item.loading .loading-spinner {
+            display: block;
+        }
+
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* Optimized image loading */
+        .playlist-art {
+            background-color: #222;
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Preload indicator */
+        .preload-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: rgba(255,255,255,0.1);
+            z-index: 9999;
+        }
+
+        .preload-progress {
+            height: 100%;
+            width: 0;
+            background: var(--gradient);
+            transition: width 0.3s ease;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 1rem;
@@ -328,12 +375,15 @@
     </style>
 </head>
 <body>
+    <!-- Preload Progress Bar -->
+    <div class="preload-indicator">
+        <div class="preload-progress" id="preloadProgress"></div>
+    </div>
+
     <header>
         <img class="profile-img" src="images/img (p).jpg" alt="Profile Image">
         <nav>
-            <ul>
-                
-            </ul>
+            <ul></ul>
         </nav>
     </header>
 
@@ -372,9 +422,17 @@
         </div>
     </div>
 
-    <audio id="audioPlayer"></audio>
+    <audio id="audioPlayer" preload="auto"></audio>
 
     <script>
+        // Configuration
+        const config = {
+            preloadNextTracks: 3, // Number of next tracks to preload
+            bufferSize: 30, // Seconds to buffer ahead
+            lowLatency: true, // Enable low latency mode
+            progressiveLoading: true // Enable progressive loading
+        };
+
         const nasheedData = [
             {
                 title: "Assubhu Bada",
@@ -384,95 +442,102 @@
             },
             {
                 title: "Taweel Alshawq",
-              
                 artist: "Abdurahman Kunnath",
                 file: "nasheed/Abdurahman Kunnath - Taweel Alshawq ｜ عبد الرحمن كُنّت - طويل الشوق [4RYBhmrfUwQ].mp3",
                 cover: "images/cover2.jpg"
             },
-
-                        {
-                title:"The Way of The Tears",
+            {
+                title: "The Way of The Tears",
                 artist: "RAHEEM A5",
                 file: "nasheed/｜Nasheed｜ The Way Of Tears slow and reverb ｜By Muhammad al-muqit [F-uAZxMJvbc] (1).mp3",
                 cover: "images/cover4.jpg"
             },
             {
-                title:"The Way of The Tears",
+                title: "The Way of The Tears",
                 artist: "Muhammad Al Muqit",
                 file: "nasheed/The Way of The Tears (Nasheed) [ck90bR81xjk].mp3",
                 cover: "images/cover3.jpg"
             },
-
-                                    {
-                title:"La La Tahsab",
+            {
+                title: "La La Tahsab",
                 artist: "Salahuddin Sakib",
                 file: "nasheed/La La Tahsab ｜ Love and Life ｜ حب وحياة ｜Salahuddin Sakib [Ny5AV1L4GU0].mp3",
                 cover: "images/cover5.jpg"
             },
-
-
-
-                                    {
-                title:"Hasn't Death Called You？",
+            {
+                title: "Hasn't Death Called You？",
                 artist: "Abdullah Ali",
                 file: "nasheed/Hasn't Death Called You？ ｜ Nasheed by Mashary Rashed Al Afasy [noLBypfK8BU].mp3",
                 cover: "images/cover7.jpg"
             },
-
-                                                            {
-                title:"Al Nafso tabki",
+            {
+                title: "Al Nafso tabki",
                 artist: "Alwan Al Taif",
                 file: "nasheed/Al Nafso Tabki.mp3",
                 cover: "images/cover6.jpg"
-            },                                                {
-                title:"Mawly",
+            },
+            {
+                title: "Mawly",
                 artist: "Mohammed Obaid",
                 file: "nasheed/Mawlay (vocal) [Jk0GZv08kO4].mp3",
                 cover: "images/cover8.jpg"
             },
-                                                                        {
-                title:"Ya Adheeman",
+            {
+                title: "Ya Adheeman",
                 artist: "Ahmed Bukhatir",
                 file: "nasheed/Nasheed Ya Adheeman - Ahmed Bukhatir  نشيد يا عظيما - أحمد بوخاطر - Arabic Music Video [71hi9H6fZuc].mp3",
                 cover: "images/cover9.jpg"
             },
-                                                                                    {
-                title:"My hope (Allah)",
+            {
+                title: "My hope (Allah)",
                 artist: "MercifulServant",
                 file: "nasheed/My Hope (Allah) Nasheed By Muhammad al Muqit [slkyMimmb1M].mp3",
                 cover: "images/cover10.jpg"
             },
-                                                                                {
-                title:"Huwannur",
+            {
+                title: "Huwannur",
                 artist: "Strict Love Official",
                 file: "nasheed/Huwannur ｜｜ original version ｜｜ WhatsApp Status [OTZeOm7Q1nQ] (1).mp3",
                 cover: "images/cover13.jpg"
             },
-                                                                                                                                    {
-                title:"Be Happy",
+            {
+                title: "Be Happy",
                 artist: "MercifulServant",
                 file: "nasheed/Be Happy - Motivational Nasheed - Othman Al Ibrahim [D7mg8zkmiy8].mp3",
                 cover: "images/cover14.jpg"
             },
-                                                                                                                                                                    {
-                title:"Maula Ya Salli",
+            {
+                title: "Maula Ya Salli",
                 artist: "Muza",
                 file: "nasheed/Maula Ya Salli - Muza (Slowed & Reverb) [oR0dSGDxPvo].mp3",
                 cover: "images/cover11.jpg"
-            },                                                    {
-                title:"The Sins",
+            },
+            {
+                title: "The Sins",
                 artist: "Muhammad Al Muqit",
                 file: "nasheed/The SINS Nasheed ｜ الخطايا ｜ Muhammad Al Muqit ｜ Lyrics [fz1c2TchLzo].mp3",
                 cover: "images/cover12.jpg"
-            },
-                                        
+            }
         ];
 
-        const audio = new Audio();
+        // Audio context for better performance
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioContext;
+        let audioSource;
+        let audioBuffer;
+        let isPlaying = false;
+        
+        const audioElement = document.getElementById('audioPlayer');
         let currentTrack = 0;
         const playerContainer = document.getElementById('playerContainer');
         const miniAlbumArt = document.getElementById('miniAlbumArt');
+        const preloadProgress = document.getElementById('preloadProgress');
+        
+        // Track preloading
+        let preloadedTracks = {};
+        let isPreloading = false;
 
+        // Initialize the playlist
         function initPlaylist() {
             const playlist = document.getElementById('playlist');
             
@@ -485,6 +550,7 @@
                         <h3>${track.title}</h3>
                         <p>${track.artist}</p>
                     </div>
+                    <div class="loading-spinner"></div>
                     <a href="${track.file}" download class="download-btn">
                         <i class="fas fa-download"></i>
                     </a>
@@ -494,79 +560,242 @@
                 };
                 playlist.appendChild(item);
             });
+            
+            // Preload the first few tracks
+            preloadInitialTracks();
         }
 
-        function playTrack(index) {
-            currentTrack = index;
-            const track = nasheedData[index];
-            
-            audio.src = track.file;
-            miniAlbumArt.style.backgroundImage = `url('${track.cover}')`;
-            
-            playerContainer.classList.add('active');
-            audio.play();
-            updatePlayButton(true);
-            
-            document.querySelectorAll('.playlist-item').forEach((item, i) => {
-                item.classList.toggle('active', i === index);
-            });
-        }
-
-        function togglePlay() {
-            if(audio.paused) {
-                audio.play();
-                updatePlayButton(true);
-            } else {
-                audio.pause();
-                updatePlayButton(false);
+        // Preload initial tracks
+        function preloadInitialTracks() {
+            const tracksToPreload = Math.min(config.preloadNextTracks, nasheedData.length);
+            for (let i = 0; i < tracksToPreload; i++) {
+                preloadTrack(i);
             }
         }
 
-        function updatePlayButton(isPlaying) {
+        // Preload a specific track
+        function preloadTrack(index) {
+            if (preloadedTracks[index] || isPreloading) return;
+            
+            const track = nasheedData[index];
+            if (!track) return;
+            
+            isPreloading = true;
+            const playlistItem = document.querySelectorAll('.playlist-item')[index];
+            playlistItem.classList.add('loading');
+            
+            // Update preload progress
+            const totalToLoad = Object.keys(preloadedTracks).length;
+            const progress = (totalToLoad / nasheedData.length) * 100;
+            preloadProgress.style.width = `${progress}%`;
+            
+            // Create a hidden audio element for preloading
+            const preloadAudio = new Audio();
+            preloadAudio.src = track.file;
+            preloadAudio.preload = 'auto';
+            
+            preloadAudio.addEventListener('canplaythrough', () => {
+                preloadedTracks[index] = preloadAudio;
+                playlistItem.classList.remove('loading');
+                isPreloading = false;
+                
+                // Preload the next tracks if needed
+                const nextIndex = index + 1;
+                if (nextIndex < nasheedData.length && !preloadedTracks[nextIndex]) {
+                    preloadTrack(nextIndex);
+                }
+            });
+            
+            preloadAudio.addEventListener('error', () => {
+                console.error(`Failed to preload track ${index}`);
+                playlistItem.classList.remove('loading');
+                isPreloading = false;
+            });
+        }
+
+        // Play a specific track
+        async function playTrack(index) {
+            // If the same track is clicked and it's playing, just pause
+            if (currentTrack === index && isPlaying) {
+                togglePlay();
+                return;
+            }
+            
+            currentTrack = index;
+            const track = nasheedData[index];
+            
+// Show loading state
+            const playlistItems = document.querySelectorAll('.playlist-item');
+            playlistItems.forEach(item => item.classList.remove('active', 'loading'));
+            playlistItems[index].classList.add('loading');
+            
+            // Update UI
+            miniAlbumArt.style.backgroundImage = `url('${track.cover}')`;
+            playerContainer.classList.add('active');
+            
+            try {
+                // Try to use preloaded audio if available
+                if (preloadedTracks[index]) {
+                    audioElement.src = track.file;
+                    audioElement.load();
+                } else {
+                    // Fallback to regular loading
+                    audioElement.src = track.file;
+                    audioElement.preload = 'auto';
+                }
+                
+                // Wait for the audio to be ready
+                await new Promise((resolve) => {
+                    const onCanPlay = () => {
+                        audioElement.removeEventListener('canplay', onCanPlay);
+                        resolve();
+                    };
+                    audioElement.addEventListener('canplay', onCanPlay);
+                });
+                
+                // Play the audio
+                await audioElement.play();
+                isPlaying = true;
+                updatePlayButton(true);
+                playlistItems[index].classList.remove('loading');
+                playlistItems[index].classList.add('active');
+                
+                // Preload next tracks
+                for (let i = 1; i <= config.preloadNextTracks; i++) {
+                    const nextIndex = (index + i) % nasheedData.length;
+                    if (!preloadedTracks[nextIndex]) {
+                        preloadTrack(nextIndex);
+                    }
+                }
+                
+                // Initialize Web Audio API for better control
+                if (!audioContext) {
+                    audioContext = new AudioContext();
+                    audioSource = audioContext.createMediaElementSource(audioElement);
+                    audioSource.connect(audioContext.destination);
+                }
+                
+            } catch (error) {
+                console.error('Error playing track:', error);
+                playlistItems[index].classList.remove('loading');
+            }
+        }
+
+        // Toggle play/pause
+        function togglePlay() {
+            if (isPlaying) {
+                audioElement.pause();
+                isPlaying = false;
+            } else {
+                audioElement.play().then(() => {
+                    isPlaying = true;
+                }).catch(error => {
+                    console.error('Playback failed:', error);
+                });
+            }
+            updatePlayButton(isPlaying);
+        }
+
+        // Update play button UI
+        function updatePlayButton(playing) {
             document.getElementById('playBtn').innerHTML = 
-                isPlaying ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
+                playing ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
         }
 
+        // Next track
         function nextTrack() {
-            currentTrack = (currentTrack + 1) % nasheedData.length;
-            playTrack(currentTrack);
+            const nextIndex = (currentTrack + 1) % nasheedData.length;
+            playTrack(nextIndex);
         }
 
+        // Previous track
         function previousTrack() {
-            currentTrack = (currentTrack - 1 + nasheedData.length) % nasheedData.length;
-            playTrack(currentTrack);
+            const prevIndex = (currentTrack - 1 + nasheedData.length) % nasheedData.length;
+            playTrack(prevIndex);
         }
 
-        audio.ontimeupdate = () => {
-            const progress = (audio.currentTime / audio.duration) * 100;
+        // Time update handler
+        audioElement.ontimeupdate = () => {
+            const progress = (audioElement.currentTime / audioElement.duration) * 100;
             document.getElementById('progress').style.width = `${progress}%`;
-            document.getElementById('currentTime').textContent = formatTime(audio.currentTime);
-            document.getElementById('duration').textContent = formatTime(audio.duration);
+            document.getElementById('currentTime').textContent = formatTime(audioElement.currentTime);
+            document.getElementById('duration').textContent = formatTime(audioElement.duration);
+            
+            // Progressive buffering indicator
+            if (audioElement.buffered.length > 0) {
+                const bufferedEnd = audioElement.buffered.end(audioElement.buffered.length - 1);
+                const bufferedPercent = (bufferedEnd / audioElement.duration) * 100;
+                // You could display this to show buffering progress
+            }
         };
 
+        // Format time as MM:SS
         function formatTime(seconds) {
+            if (isNaN(seconds)) return "0:00";
             const minutes = Math.floor(seconds / 60);
             const remainingSeconds = Math.floor(seconds % 60);
             return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
         }
 
+        // Progress bar click handler
         document.getElementById('progressBar').addEventListener('click', (e) => {
             const rect = e.target.getBoundingClientRect();
             const pos = (e.clientX - rect.left) / rect.width;
-            audio.currentTime = pos * audio.duration;
+            audioElement.currentTime = pos * audioElement.duration;
         });
 
+        // Toggle mute
         function toggleMute() {
-            audio.muted = !audio.muted;
-            document.getElementById('volumeIcon').classList.toggle('fa-volume-mute', audio.muted);
-            document.getElementById('volumeIcon').classList.toggle('fa-volume-up', !audio.muted);
+            audioElement.muted = !audioElement.muted;
+            document.getElementById('volumeIcon').classList.toggle('fa-volume-mute', audioElement.muted);
+            document.getElementById('volumeIcon').classList.toggle('fa-volume-up', !audioElement.muted);
         }
 
+        // Volume slider handler
         document.getElementById('volumeSlider').addEventListener('input', (e) => {
-            audio.volume = e.target.value;
+            audioElement.volume = e.target.value;
         });
 
-        initPlaylist();
+        // Track ended handler
+        audioElement.addEventListener('ended', () => {
+            if (currentTrack < nasheedData.length - 1) {
+                nextTrack();
+            } else {
+                isPlaying = false;
+                updatePlayButton(false);
+            }
+        });
+
+        // Error handling
+        audioElement.addEventListener('error', (e) => {
+            console.error('Audio error:', e);
+            const playlistItems = document.querySelectorAll('.playlist-item');
+            playlistItems[currentTrack].classList.remove('loading');
+        });
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            initPlaylist();
+            
+            // Hide preload indicator when all tracks are loaded
+            setTimeout(() => {
+                preloadProgress.style.opacity = '0';
+                setTimeout(() => {
+                    document.querySelector('.preload-indicator').style.display = 'none';
+                }, 300);
+            }, 1000);
+        });
+
+        // Service Worker registration for caching
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').then(registration => {
+                    console.log('ServiceWorker registration successful');
+                }).catch(err => {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
     </script>
 </body>
 </html>
